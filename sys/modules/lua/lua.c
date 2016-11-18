@@ -49,6 +49,7 @@
 #include <sys/cpu.h>
 
 #include <lauxlib.h>
+#include <lualib.h>
 
 #include "luavar.h"
 
@@ -530,7 +531,7 @@ typedef struct {
 	size_t size;
 } __packed alloc_header_t;
 
-static void *
+void *
 lua_alloc(void *ud, void *ptr, size_t osize, size_t nsize)
 {
 	void *nptr = NULL;
@@ -664,6 +665,7 @@ klua_newstate(lua_Alloc f, void *ud, const char *name, const char *desc,
 
 	K = kmem_zalloc(sizeof(klua_State), KM_SLEEP);
 	K->L = lua_newstate(f, ud);
+	luaL_openlibs(K->L);
 	K->ks_user = false;
 	if (K->L == NULL) {
 		kmem_free(K, sizeof(klua_State));
