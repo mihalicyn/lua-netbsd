@@ -23,5 +23,4 @@ SRCS+=		lauxlib.c lbaselib.c lbitlib.c lcorolib.c ldblib.c \
 CPPFLAGS+=	-Iinclude \
 		-I${S}/../external/mit/lua/dist/src \
 		-I${S}/sys 
-
 .include <bsd.kmodule.mk>

@@ -13,8 +13,8 @@
 
 #ifndef _KERNEL
 #include <stddef.h>
-#endif /* _KERNEL */
 #include <stdio.h>
+#endif /* _KERNEL */
 
 #include "lua.h"
 
@@ -71,8 +71,8 @@ LUALIB_API int (luaL_error) (lua_State *L, const char *fmt, ...);
 LUALIB_API int (luaL_checkoption) (lua_State *L, int arg, const char *def,
                                    const char *const lst[]);
 
-LUALIB_API int (luaL_fileresult) (lua_State *L, int stat, const char *fname);
 #ifndef _KERNEL
+LUALIB_API int (luaL_fileresult) (lua_State *L, int stat, const char *fname);
 LUALIB_API int (luaL_execresult) (lua_State *L, int stat);
 #endif /* _KERNEL */
 
@@ -83,10 +83,12 @@ LUALIB_API int (luaL_execresult) (lua_State *L, int stat);
 LUALIB_API int (luaL_ref) (lua_State *L, int t);
 LUALIB_API void (luaL_unref) (lua_State *L, int t, int ref);
 
+#ifndef _KERNEL
 LUALIB_API int (luaL_loadfilex) (lua_State *L, const char *filename,
                                                const char *mode);
 
 #define luaL_loadfile(L,f)	luaL_loadfilex(L,f,NULL)
+#endif /* _KERNEL */
 
 LUALIB_API int (luaL_loadbufferx) (lua_State *L, const char *buff, size_t sz,
                                    const char *name, const char *mode);
@@ -180,6 +182,7 @@ LUALIB_API char *(luaL_buffinitsize) (lua_State *L, luaL_Buffer *B, size_t sz);
 
 
 
+#ifndef _KERNEL
 /*
 ** {======================================================
 ** File handles for IO library
@@ -201,6 +204,7 @@ typedef struct luaL_Stream {
 } luaL_Stream;
 
 /* }====================================================== */
+#endif /* _KERNEL */
 
 
 
