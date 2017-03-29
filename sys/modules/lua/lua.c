@@ -516,7 +516,10 @@ lua_require(lua_State *L)
 					    "require module %s\n",
 					    md->mod_name);
 
-				/* check that module not loaded yet */
+				/* add module to loaded list in state */
+				luaL_requiref(L, md->mod_name, md->open, 0);
+
+				/* check that module not loaded yet before increasing refcount and adding to state modules list */
 				LIST_FOREACH(m, &s->lua_modules, mod_next)
 					if (m == md) {
 						if (lua_verbose)
@@ -526,8 +529,6 @@ lua_require(lua_State *L)
 
 						return 1;
 					}
-
-				luaL_requiref(L, md->mod_name, md->open, 0);
 
 				md->refcount++;
 				LIST_INSERT_HEAD(&s->lua_modules, md, mod_next);
