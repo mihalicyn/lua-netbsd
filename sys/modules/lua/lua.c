@@ -515,6 +515,18 @@ lua_require(lua_State *L)
 					device_printf(sc_self,
 					    "require module %s\n",
 					    md->mod_name);
+
+				/* check that module not loaded yet */
+				LIST_FOREACH(m, &s->lua_modules, mod_next)
+					if (m == md) {
+						if (lua_verbose)
+							device_printf(sc_self,
+								"required module %s already loaded\n",
+								m->mod_name);
+
+						return 1;
+					}
+
 				luaL_requiref(L, md->mod_name, md->open, 0);
 
 				md->refcount++;
