@@ -12,12 +12,10 @@
 #include "lprefix.h"
 
 
-#ifndef _KERNEL
 #include <errno.h>
-#endif /* _KERNEL */
 #include <stdarg.h>
-#ifndef _KERNEL
 #include <stdio.h>
+#ifndef _KERNEL
 #include <stdlib.h>
 #include <string.h>
 #endif /* _KERNEL */
@@ -238,7 +236,6 @@ LUALIB_API int luaL_error (lua_State *L, const char *fmt, ...) {
 }
 
 
-#ifndef _KERNEL
 LUALIB_API int luaL_fileresult (lua_State *L, int stat, const char *fname) {
   int en = errno;  /* calls to Lua API may change this value */
   if (stat) {
@@ -255,7 +252,6 @@ LUALIB_API int luaL_fileresult (lua_State *L, int stat, const char *fname) {
     return 3;
   }
 }
-#endif /* _KERNEL */
 
 
 #if !defined(l_inspectstat)	/* { */
@@ -645,7 +641,6 @@ LUALIB_API void luaL_unref (lua_State *L, int t, int ref) {
 ** =======================================================
 */
 
-#ifndef _KERNEL
 typedef struct LoadF {
   int n;  /* number of pre-read characters */
   FILE *f;  /* file being read */
@@ -731,11 +726,13 @@ LUALIB_API int luaL_loadfilex (lua_State *L, const char *filename,
   }
   if (skipcomment(&lf, &c))  /* read initial portion */
     lf.buff[lf.n++] = '\n';  /* add line to correct line numbers */
+#ifndef _KERNEL
   if (c == LUA_SIGNATURE[0] && filename) {  /* binary file? */
     lf.f = freopen(filename, "rb", lf.f);  /* reopen in binary mode */
     if (lf.f == NULL) return errfile(L, "reopen", fnameindex);
     skipcomment(&lf, &c);  /* re-read initial portion */
   }
+#endif /* _KERNEL */
   if (c != EOF)
     lf.buff[lf.n++] = c;  /* 'c' is the first character of the stream */
   status = lua_load(L, getF, &lf, lua_tostring(L, -1), mode);
@@ -748,7 +745,6 @@ LUALIB_API int luaL_loadfilex (lua_State *L, const char *filename,
   lua_remove(L, fnameindex);
   return status;
 }
-#endif /* _KERNEL */
 
 
 typedef struct LoadS {

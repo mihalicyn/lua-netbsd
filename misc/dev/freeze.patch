@@ -1,0 +1,26 @@
+diff --git a/sys/modules/lua/lua.c b/sys/modules/lua/lua.c
+index 6ec331e..1aaeffc 100644
+--- a/sys/modules/lua/lua.c
++++ b/sys/modules/lua/lua.c
+@@ -515,8 +515,21 @@ lua_require(lua_State *L)
+ 					device_printf(sc_self,
+ 					    "require module %s\n",
+ 					    md->mod_name);
++
++				/* add module to loaded list in state */
+ 				luaL_requiref(L, md->mod_name, md->open, 0);
+ 
++				/* check that module not loaded yet before increasing refcount and adding to state modules list */
++				LIST_FOREACH(m, &s->lua_modules, mod_next)
++					if (m == md) {
++						if (lua_verbose)
++							device_printf(sc_self,
++								"required module %s already loaded\n",
++								m->mod_name);
++
++						return 1;
++					}
++
+ 				md->refcount++;
+ 				LIST_INSERT_HEAD(&s->lua_modules, md, mod_next);
+ 				return 1;

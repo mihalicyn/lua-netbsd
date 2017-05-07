@@ -49,6 +49,7 @@
 #include <sys/cpu.h>
 
 #include <lauxlib.h>
+#include <lualib.h>
 
 #include "luavar.h"
 
@@ -356,6 +357,16 @@ luaioctl(dev_t dev, u_long cmd, void *data, int flag, struct lwp *l)
 		require = data;
 		LIST_FOREACH(s, &lua_states, lua_next)
 			if (!strcmp(s->lua_name, require->state)) {
+				if (require->stdlibs) {
+					if (lua_verbose)
+						device_printf(sc->sc_dev, 
+						"requiring standard libraries to state %s\n",
+						s->lua_name);
+					klua_lock(s->K);
+					luaL_openlibs(s->K->L);
+					klua_unlock(s->K);
+					return 0;
+				}
 				LIST_FOREACH(m, &s->lua_modules, mod_next)
 					if (!strcmp(m->mod_name, require->module))
 						return ENXIO;

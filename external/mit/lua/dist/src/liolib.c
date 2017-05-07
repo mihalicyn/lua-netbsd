@@ -12,12 +12,16 @@
 #include "lprefix.h"
 
 
+#ifndef _KERNEL
 #include <ctype.h>
+#endif /* _KERNEL */
 #include <errno.h>
+#ifndef _KERNEL
 #include <locale.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#endif /* _KERNEL */
 
 #include "lua.h"
 
@@ -46,6 +50,7 @@
 
 #endif
 
+#ifndef _KERNEL
 /*
 ** {======================================================
 ** l_popen spawns a new process connected to the current
@@ -79,6 +84,7 @@
 #endif				/* } */
 
 /* }====================================================== */
+#endif /* _KERNEL */
 
 
 #if !defined(l_getc)		/* { */
@@ -260,6 +266,7 @@ static int io_open (lua_State *L) {
 }
 
 
+#ifndef _KERNEL
 /*
 ** function to close 'popen' files
 */
@@ -277,6 +284,7 @@ static int io_popen (lua_State *L) {
   p->closef = &io_pclose;
   return (p->f == NULL) ? luaL_fileresult(L, 0, filename) : 1;
 }
+#endif /* _KERNEL */
 
 
 static int io_tmpfile (lua_State *L) {
@@ -437,10 +445,14 @@ static int read_number (lua_State *L, FILE *f) {
   RN rn;
   int count = 0;
   int hex = 0;
+#ifndef _KERNEL
   char decp[2];
+#endif /* _KERNEL */
   rn.f = f; rn.n = 0;
+#ifndef _KERNEL
   decp[0] = lua_getlocaledecpoint();  /* get decimal point from locale */
   decp[1] = '.';  /* always accept a dot */
+#endif /* _KERNEL */
   l_lockfile(rn.f);
   do { rn.c = l_getc(rn.f); } while (isspace(rn.c));  /* skip spaces */
   test2(&rn, "-+");  /* optional signal */
@@ -449,6 +461,7 @@ static int read_number (lua_State *L, FILE *f) {
     else count = 1;  /* count initial '0' as a valid digit */
   }
   count += readdigits(&rn, hex);  /* integral part */
+#ifndef _KERNEL
   if (test2(&rn, decp))  /* decimal point? */
     count += readdigits(&rn, hex);  /* fractional part */
   if (count > 0 && test2(&rn, (hex ? "pP" : "eE"))) {  /* exponent mark? */
@@ -456,6 +469,7 @@ static int read_number (lua_State *L, FILE *f) {
     readdigits(&rn, 0);  /* exponent digits */
   }
   ungetc(rn.c, rn.f);  /* unread look-ahead char */
+#endif
   l_unlockfile(rn.f);
   rn.buff[rn.n] = '\0';  /* finish string */
   if (lua_stringtonumber(L, rn.buff))  /* is this a valid number? */
@@ -666,6 +680,7 @@ static int f_seek (lua_State *L) {
 }
 
 
+#ifndef _KERNEL
 static int f_setvbuf (lua_State *L) {
   static const int mode[] = {_IONBF, _IOFBF, _IOLBF};
   static const char *const modenames[] = {"no", "full", "line", NULL};
@@ -686,6 +701,7 @@ static int io_flush (lua_State *L) {
 static int f_flush (lua_State *L) {
   return luaL_fileresult(L, fflush(tofile(L)) == 0, NULL);
 }
+#endif /* _KERNEL */
 
 
 /*
@@ -693,12 +709,16 @@ static int f_flush (lua_State *L) {
 */
 static const luaL_Reg iolib[] = {
   {"close", io_close},
+#ifndef _KERNEL
   {"flush", io_flush},
+#endif /* _KERNEL */
   {"input", io_input},
   {"lines", io_lines},
   {"open", io_open},
   {"output", io_output},
+#ifndef _KERNEL
   {"popen", io_popen},
+#endif /* _KERNEL */
   {"read", io_read},
   {"tmpfile", io_tmpfile},
   {"type", io_type},
@@ -712,11 +732,15 @@ static const luaL_Reg iolib[] = {
 */
 static const luaL_Reg flib[] = {
   {"close", io_close},
+#ifndef _KERNEL
   {"flush", f_flush},
+#endif /* _KERNEL */
   {"lines", f_lines},
   {"read", f_read},
   {"seek", f_seek},
+#ifndef _KERNEL
   {"setvbuf", f_setvbuf},
+#endif /* _KERNEL */
   {"write", f_write},
   {"__gc", f_gc},
   {"__tostring", f_tostring},
@@ -733,6 +757,7 @@ static void createmeta (lua_State *L) {
 }
 
 
+#ifndef _KERNEL
 /*
 ** function to (not) close the standard files stdin, stdout, and stderr
 */
@@ -756,15 +781,18 @@ static void createstdfile (lua_State *L, FILE *f, const char *k,
   }
   lua_setfield(L, -2, fname);  /* add file to module */
 }
+#endif /* _KERNEL */
 
 
 LUAMOD_API int luaopen_io (lua_State *L) {
   luaL_newlib(L, iolib);  /* new module */
   createmeta(L);
+#ifndef _KERNEL
   /* create (and set) default files */
   createstdfile(L, stdin, IO_INPUT, "stdin");
   createstdfile(L, stdout, IO_OUTPUT, "stdout");
   createstdfile(L, stderr, NULL, "stderr");
+#endif /* _KERNEL */
   return 1;
 }
 

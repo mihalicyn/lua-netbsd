@@ -40,6 +40,10 @@
 .Op Fl cq
 .Cm require
 .Ar name module
+.Nm
+.Op "" Fl s
+.Cm require
+.Ar name
 .Sh DESCRIPTION
 The
 .Nm
@@ -103,6 +107,13 @@ use the bindings provided in module
 This is the equivalent of userland Lua code calling the
 .Sq require
 function.
+.Fl s
+causes
+.Nm
+to open Lua standard libraries into the Lua state
+.Ar name ;
+.Ar module
+is thus optional.
 .El
 .Sh FILES
 .Bl -tag -width "/dev/lua" -compact

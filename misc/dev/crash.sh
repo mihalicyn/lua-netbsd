@@ -6,7 +6,7 @@
 cld_actions()
 {
 	luactl create s1
-	#luactl require s1 systm
+	luactl require s1 systm
 	luactl load s1 /root/dev/test.lua
 	luactl destroy s1
 }

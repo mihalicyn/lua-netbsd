@@ -816,10 +816,6 @@
 #define LUAI_TRY(L,c,a)		if (setjmp(&((c)->b)) == 0) { a }
 #define luai_jmpbuf		label_t
 
-/* time.h */
-#include <sys/time.h>
-#define time(p)			(time_uptime)
-
 /* stdio.h */
 #define lua_writestring(s,l)	printf("%s", (s))
 #define lua_writeline()		printf("\n")

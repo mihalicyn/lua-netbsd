@@ -17,9 +17,11 @@ SRCS+=		lapi.c lcode.c lctype.c ldebug.c ldo.c ldump.c lfunc.c lgc.c \
 
 # Lua stdlibs source code
 SRCS+=		lauxlib.c lbaselib.c lbitlib.c lcorolib.c ldblib.c \
-		lstrlib.c ltablib.c lutf8lib.c linit.c
+		lstrlib.c ltablib.c lutf8lib.c linit.c \
+		loslib.c liolib.c lmathlib.c
 
-CPPFLAGS+=	-I${S}/../external/mit/lua/dist/src \
+CPPFLAGS+=	-Iinclude \
+		-I${S}/../external/mit/lua/dist/src \
 		-I${S}/sys
 
 .include <bsd.kmodule.mk>

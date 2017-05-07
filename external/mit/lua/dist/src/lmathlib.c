@@ -21,8 +21,10 @@
 #include "lualib.h"
 
 
+#ifndef _KERNEL
 #undef PI
 #define PI	(l_mathop(3.141592653589793238462643383279502884))
+#endif /* _KERNEL */
 
 
 #if !defined(l_rand)		/* { */
@@ -38,6 +40,7 @@
 #endif				/* } */
 
 
+#ifndef _KERNEL
 static int math_abs (lua_State *L) {
   if (lua_isinteger(L, 1)) {
     lua_Integer n = lua_tointeger(L, 1);
@@ -124,6 +127,7 @@ static int math_ceil (lua_State *L) {
   }
   return 1;
 }
+#endif /* _KERNEL */
 
 
 static int math_fmod (lua_State *L) {
@@ -136,13 +140,16 @@ static int math_fmod (lua_State *L) {
     else
       lua_pushinteger(L, lua_tointeger(L, 1) % d);
   }
+#ifndef _KERNEL
   else
     lua_pushnumber(L, l_mathop(fmod)(luaL_checknumber(L, 1),
                                      luaL_checknumber(L, 2)));
+#endif /* _KERNEL */
   return 1;
 }
 
 
+#ifndef _KERNEL
 /*
 ** next function does not use 'modf', avoiding problems with 'double*'
 ** (which is not compatible with 'float*') when lua_Number is not
@@ -209,6 +216,7 @@ static int math_rad (lua_State *L) {
   lua_pushnumber(L, luaL_checknumber(L, 1) * (PI / l_mathop(180.0)));
   return 1;
 }
+#endif /* _KERNEL */
 
 
 static int math_min (lua_State *L) {
@@ -245,7 +253,11 @@ static int math_max (lua_State *L) {
 */
 static int math_random (lua_State *L) {
   lua_Integer low, up;
+#ifndef _KERNEL
   double r = (double)l_rand() * (1.0 / ((double)L_RANDMAX + 1.0));
+#else
+  long r = l_rand();
+#endif /* _KERNEL */
   switch (lua_gettop(L)) {  /* check number of arguments */
     case 0: {  /* no arguments */
       lua_pushnumber(L, (lua_Number)r);  /* Number between 0 and 1 */
@@ -267,7 +279,11 @@ static int math_random (lua_State *L) {
   luaL_argcheck(L, low <= up, 1, "interval is empty"); 
   luaL_argcheck(L, low >= 0 || up <= LUA_MAXINTEGER + low, 1,
                    "interval too large");
+#ifndef _KERNEL
   r *= (double)(up - low) + 1.0;
+#else
+  r %= (up - low) + 1;
+#endif /* _KERNEL */
   lua_pushinteger(L, (lua_Integer)r + low);
   return 1;
 }
@@ -295,6 +311,7 @@ static int math_type (lua_State *L) {
 }
 
 
+#ifndef _KERNEL
 /*
 ** {==================================================================
 ** Deprecated functions (for compatibility only)
@@ -345,10 +362,12 @@ static int math_log10 (lua_State *L) {
 
 #endif
 /* }================================================================== */
+#endif /* _KERNEL */
 
 
 
 static const luaL_Reg mathlib[] = {
+#ifndef _KERNEL
   {"abs",   math_abs},
   {"acos",  math_acos},
   {"asin",  math_asin},
@@ -359,19 +378,27 @@ static const luaL_Reg mathlib[] = {
   {"exp",   math_exp},
   {"tointeger", math_toint},
   {"floor", math_floor},
+#endif /* _KERNEL */
   {"fmod",   math_fmod},
+#ifndef _KERNEL
   {"ult",   math_ult},
   {"log",   math_log},
+#endif /* _KERNEL */
   {"max",   math_max},
   {"min",   math_min},
+#ifndef _KERNEL
   {"modf",   math_modf},
   {"rad",   math_rad},
+#endif /* _KERNEL */
   {"random",     math_random},
   {"randomseed", math_randomseed},
+#ifndef _KERNEL
   {"sin",   math_sin},
   {"sqrt",  math_sqrt},
   {"tan",   math_tan},
+#endif /* _KERNEL */
   {"type", math_type},
+#ifndef _KERNEL
 #if defined(LUA_COMPAT_MATHLIB)
   {"atan2", math_atan},
   {"cosh",   math_cosh},
@@ -384,6 +411,7 @@ static const luaL_Reg mathlib[] = {
 #endif
   /* placeholders */
   {"pi", NULL},
+#endif /* _KERNEL */
   {"huge", NULL},
   {"maxinteger", NULL},
   {"mininteger", NULL},
@@ -396,8 +424,10 @@ static const luaL_Reg mathlib[] = {
 */
 LUAMOD_API int luaopen_math (lua_State *L) {
   luaL_newlib(L, mathlib);
+#ifndef _KERNEL
   lua_pushnumber(L, PI);
   lua_setfield(L, -2, "pi");
+#endif /* _KERNEL */
   lua_pushnumber(L, (lua_Number)HUGE_VAL);
   lua_setfield(L, -2, "huge");
   lua_pushinteger(L, LUA_MAXINTEGER);

@@ -50,6 +50,7 @@
 int devfd = -1;
 int quiet = 0;
 int docreate = 0;
+bool stdlibs = false;
 
 static void getinfo(void);
 static void create(char *, char *);
@@ -67,13 +68,16 @@ main(int argc, char *argv[])
 {
 	int ch;
 
-	while ((ch = getopt(argc, argv, "cq")) != -1)
+	while ((ch = getopt(argc, argv, "cqs")) != -1)
 		switch (ch) {
 		case 'c':
 			docreate = 1;
 			break;
 		case 'q':
 			quiet = 1;
+			break;
+		case 's':
+			stdlibs = true;
 			break;
 		default:
 			usage();
@@ -99,11 +103,14 @@ main(int argc, char *argv[])
 			usage();
 		destroy(argv[1]);
 	} else if (!strcmp(argv[0], "require")) {
-		if (argc != 3)
+		if (argc != 3 && !stdlibs)
 			usage();
 		if (docreate)
 			create(argv[1], NULL);
-		require(argv[1], argv[2]);
+		if (stdlibs)
+			require(argv[1], NULL);
+		else
+			require(argv[1], argv[2]);
 	} else if (!strcmp(argv[0], "load")) {
 		if (argc != 3)
 			usage();
@@ -183,10 +190,13 @@ destroy(char *name)
 static void
 require(char *name, char *module)
 {
-	struct lua_require r;
+	struct lua_require r = {
+		.stdlibs = stdlibs
+	};
 
 	strlcpy(r.state, name, sizeof(r.state));
-	strlcpy(r.module, module, sizeof(r.module));
+	if (!stdlibs)
+		strlcpy(r.module, module, sizeof(r.module));
 
 	if (ioctl(devfd, LUAREQUIRE, &r) == -1)
 		err(EXIT_FAILURE, "LUAREQUIRE");
@@ -194,7 +204,10 @@ require(char *name, char *module)
 	if (quiet)
 		return;
 
-	printf("%s required by %s\n", module, name);
+	if (stdlibs)
+		printf("standard libraries required by %s\n", name);
+	else
+		printf("%s required by %s\n", module, name);
 }
 
 static void
@@ -224,6 +237,7 @@ usage(void)
 	fprintf(stderr, "       %s [-cq] create name [desc]\n", p);
 	fprintf(stderr, "       %s [-cq] destroy name\n", p);
 	fprintf(stderr, "       %s [-cq] require name module\n", p);
+	fprintf(stderr, "       %s [ -s] require name\n", p);
 	fprintf(stderr, "       %s [-cq] load name path\n", p);
 
 	exit(EXIT_FAILURE);
