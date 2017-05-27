@@ -11,4 +11,5 @@ One of the main problems with current luaio implementation is performance.
 
 ### Fixes
 http://gnats.netbsd.org/cgi-bin/query-pr-single.pl?number=52225
+
 http://gnats.netbsd.org/cgi-bin/query-pr-single.pl?number=52226
